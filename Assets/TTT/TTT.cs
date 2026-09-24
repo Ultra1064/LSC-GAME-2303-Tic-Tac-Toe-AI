@@ -40,6 +40,15 @@ public class TTT : MonoBehaviour
 
     public void MakeOptimalMove()
     { //.GetLength is a magical function that gets the length of a dimension in a multidimensional array.
+        if (emptyBoard) //If the board is EMPTY, pick a corner!
+        {
+            Debug.Log("Empty Board: Picking corner");
+            int randomCornerX = UnityEngine.Random.Range(0, 2) == 0 ? 0 : cells.GetLength(0) - 1;
+            int randomCornerY = UnityEngine.Random.Range(0, 2) == 0 ? 0 : cells.GetLength(1) - 1;
+            ChooseSpace(randomCornerX, randomCornerY);
+            return;
+        }
+
         PlayerOption opposingPlayer;
         int[,] corners = {{0, 0}, {0, Columns - 1}, {Rows - 1, 0}, {Rows - 1, Columns - 1}}; //This array here is going to be used for some JANKY behavior below
 
@@ -50,21 +59,15 @@ public class TTT : MonoBehaviour
         else
         {
             opposingPlayer = PlayerOption.X;
-        } 
+        }
+        
         for (int x = 0; x < cells.GetLength(0); x++) //0 is for rows
         {
             Debug.Log(x);
             for (int y = 0; y < cells.GetLength(1); y++) //1 is for columns
             {
                 Debug.Log(y);
-                if (emptyBoard) //If the board is EMPTY, pick a corner!
-                {
-                    Debug.Log("Empty Board: Picking corner");
-                    int randomCornerX = UnityEngine.Random.Range(0, 2) == 0 ? 0 : cells.GetLength(0) - 1;
-                    int randomCornerY = UnityEngine.Random.Range(0, 2) == 0 ? 0 : cells.GetLength(1) - 1;
-                    ChooseSpace(randomCornerX, randomCornerY);
-                    return;
-                }
+                
                 if (cells[x, y].current == PlayerOption.NONE) //If the SPACE is EMPTY
                 {
                     /*foreach(string player in Enum.GetNames(typeof(PlayerOption))) //Enum.GetNames<PlayerOption> doesn't work for some reason. Something about .NET version being too old?
@@ -90,6 +93,18 @@ public class TTT : MonoBehaviour
                         ChooseSpace(x, y);
                         return;
                     }
+                    cells[x, y].current = PlayerOption.NONE;
+                }
+            }
+        }
+        for (int x = 0; x < cells.GetLength(0); x++) //0 is for rows //The Forbidden Third For Loop
+        {
+            Debug.Log(x);
+            for (int y = 0; y < cells.GetLength(1); y++) //1 is for columns
+            {
+                Debug.Log(y);
+                if (cells[x, y].current == PlayerOption.NONE) //If the SPACE is EMPTY
+                {
                     cells[x, y].current = opposingPlayer;
                     if (GetWinner() == opposingPlayer) //If your OPPONENT can win, STOP THEM
                     {
@@ -97,7 +112,7 @@ public class TTT : MonoBehaviour
                         cells[x, y].current = PlayerOption.NONE;
                         ChooseSpace(x, y);
                         return;
-                    } //Apparently a weird thing can happen where if you attempt your win at the (0, 0) Cell and the AI has it's own open win ready to go, it'll block your win since it reads (0, 0) first.
+                    }
                     cells[x, y].current = PlayerOption.NONE;
                 }
             }
